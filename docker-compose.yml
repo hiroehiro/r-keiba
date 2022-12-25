@@ -1,0 +1,17 @@
+# https://tech-lab.sios.jp/archives/28840
+
+version: '3'
+services:
+  selenium:
+    container_name: selenium-chrome
+    image: selenium/standalone-chrome-debug:3.141.59-20210929
+    ports:
+      - 4444:4444
+      - 5900:5900
+    shm_size: "2gb"
+  keiba:
+    container_name: keiba
+    build: ./keiba
+    volumes:
+      - ./keiba:/opt/app
+    tty: true

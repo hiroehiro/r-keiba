@@ -1,3 +1,4 @@
+import selenium
 from selenium.webdriver.common.by import By
 from utils import stop, create_message, send
 
@@ -12,8 +13,6 @@ def get_schedule(driver) -> list:
     Returns:
         list: 本日の開催情報
     """
-    driver.get("https://keiba.rakuten.co.jp/?l-id=logout_top")
-    stop(1)
     racecourse_list = [i.text for i in driver.find_elements(By.CLASS_NAME, "name") if i.text != ""]
     race_list = []
     for course in racecourse_list:
@@ -22,8 +21,9 @@ def get_schedule(driver) -> list:
         for i in range(1, 20):
             try:
                 race_info = driver.find_element(By.CLASS_NAME, f"race{i:02}").text.split("\n")[0].split(" ")
-            except:
+            except selenium.common.exceptions.NoSuchElementException:
                 break
+            
             race_list.append([course]+race_info[:5])
         driver.back()
     return race_list

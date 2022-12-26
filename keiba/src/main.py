@@ -2,7 +2,8 @@ import os
 import datetime
 from selenium import webdriver
 from send_schedule import send_todayschedule, get_schedule
-from justbefore_race import get_justbefore_race, get_oddz
+from justbefore_race import get_justbefore_race
+from get_odds import get_odds
 from keiba import keiba
 
 def main():
@@ -10,6 +11,7 @@ def main():
         command_executor="http://selenium:4444/wd/hub",
         options=webdriver.ChromeOptions()
     )
+    driver.get("https://keiba.rakuten.co.jp")
  
     tz_jst = datetime.timezone(datetime.timedelta(hours=9))
     if datetime.time(9, 00) <= datetime.datetime.now(tz_jst).time() <= datetime.time(9, 10):
@@ -21,22 +23,19 @@ def main():
         if len(race_list) == 0:
             print("今日の全レースは終了しました")
             return False
-        
-        justbefore_race, notjustbefore_race = get_justbefore_race(race_list, 10)
-        print(justbefore_race)
-        print("-----------------------------")
-        print(notjustbefore_race)
 
-    #     print(justbefore_race)
-    #     if len(justbefore_race) >= 1:
-    #         race = justbefore_race[0]
-    #         venue, _, _, _, num_horse = race
-    #         num_horse = int(num_horse[:-1])
-    #         if num_horse <= 9:
-    #             print(race)
-    #             oddz = get_oddz(driver, venue)
-    #             print(oddz)
-    #             ans = keiba(oddz)
+        justbefore_race, notjustbefore_race = get_justbefore_race(race_list, 10)
+        justbefore_race = [['大井', '9R', '20:10', '金盃トライアル競走\u3000３ 上…', 'ダ2600m', '10頭']]
+        if len(justbefore_race) >= 1:
+            race = justbefore_race[0]
+            venue, race_R, starting_time, race_name, distance, num_horse = race
+            race_R = int(race_R[:-1])
+            num_horse = int(num_horse[:-1])
+            if num_horse <= 10:
+                want_odds = {"単勝", "馬単"}
+                odds = get_odds(driver, venue, race_R, want_odds)
+                print(odds)
+    #             ans = keiba(odds)
     #             print(ans)
     #             if len(ans) >= 1:
     #                 subject = '有効レース'

@@ -7,8 +7,14 @@ from email.mime.text import MIMEText
 from email.utils import formatdate
 from password import *
 
-def stop(sleep_time=2):
+def wait(sleep_time=2):
     time.sleep(sleep_time+random.random()*1.5)
+
+def switch_window(driver, original_window):
+    for window_handle in driver.window_handles:
+        if window_handle != original_window:
+            driver.switch_to.window(window_handle)
+            break
 
 def create_message(subject, body, bcc_addrs=""):
     msg = MIMEText(body, 'html')

@@ -1,6 +1,6 @@
 import selenium
 from selenium.webdriver.common.by import By
-from utils import stop, create_message, send
+from utils import wait, create_message, send
 
 def get_schedule(driver) -> list:
     """
@@ -17,7 +17,7 @@ def get_schedule(driver) -> list:
     race_list = []
     for course in racecourse_list:
         driver.find_element(By.PARTIAL_LINK_TEXT, course).click()
-        stop()
+        wait()
         for i in range(1, 20):
             try:
                 race_info = driver.find_element(By.CLASS_NAME, f"race{i:02}").text.split("\n")[0].split(" ")

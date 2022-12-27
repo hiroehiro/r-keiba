@@ -1,6 +1,6 @@
 import selenium
 from selenium.webdriver.common.by import By
-from utils import stop
+from utils import wait
 
 def get_odds(driver, venue : str, race_R: int, want_oddstype: set) -> dict:
     """
@@ -16,12 +16,10 @@ def get_odds(driver, venue : str, race_R: int, want_oddstype: set) -> dict:
     Returns:
         dict: want_oddstypeにあるオッズ
     """
-    # driver.find_element(By.PARTIAL_LINK_TEXT, venue).click()
-    driver.get("https://keiba.rakuten.co.jp/race_card/list/RACEID/202212262015160100?l-id=top_raceInfoYesterdayTrackName_raceList_20")
-    stop(1)
+    driver.find_element(By.PARTIAL_LINK_TEXT, venue).click()
+    wait(1)
     driver.find_element(By.CLASS_NAME, f"race{race_R:02}").find_element(By.PARTIAL_LINK_TEXT, "オッズ").click()
-    stop(1)
-
+    wait(1)
     odds = {}
     if "単勝" in want_oddstype:
         odds["単勝"] = get_odds_WinPlace(driver, "oddsWin")
@@ -58,7 +56,7 @@ def get_odds_WinPlace(driver, oddstype: str) -> list:
         try:
             box_list = driver.find_elements(By.CLASS_NAME, f"box{i:02}")
             for box in box_list:
-                odds.append(box.find_element(By.CLASS_NAME, oddstype).text)
+                odds.append(float(box.find_element(By.CLASS_NAME, oddstype).text))
         except selenium.common.exceptions.NoSuchElementException:
             continue
     return odds
@@ -76,15 +74,15 @@ def get_odds_waku(driver, oddstype: str) -> list:
     """
     odds = []
     driver.find_element(By.PARTIAL_LINK_TEXT, oddstype).click()
-    stop()
+    wait()
     for j in range(1, 4):
         for i in range(1, 20):
             try:
                 t = driver.find_element(By.XPATH, f"//*[@id='wakuUmaBanJun']/table[{j}]/tbody/tr[{i}]")
                 if j == 1:
-                    odds.append([tt.text for tt in t.find_elements(By.TAG_NAME, "td")])
+                    odds.append([float(tt.text) for tt in t.find_elements(By.TAG_NAME, "td")])
                 else:
-                    odds[i-1].extend([tt.text for tt in t.find_elements(By.TAG_NAME, "td")])
+                    odds[i-1].extend([float(tt.text) for tt in t.find_elements(By.TAG_NAME, "td")])
             
             except (selenium.common.exceptions.NoSuchElementException, IndexError):
                 continue

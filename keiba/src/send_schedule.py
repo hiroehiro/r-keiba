@@ -26,6 +26,7 @@ def get_schedule(driver) -> list:
             
             race_list.append([course]+race_info[:5])
         driver.back()
+    race_list = sorted(race_list, key=lambda x:x[2])
     return race_list
 
 def send_todayschedule(race_list: list) -> None:

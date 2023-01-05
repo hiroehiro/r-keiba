@@ -14,14 +14,14 @@ def job():
         command_executor="http://selenium:4444/wd/hub",
         options=webdriver.ChromeOptions()
     )
-    driver.get("https://keiba.rakuten.co.jp")
 
     tz_jst = datetime.timezone(datetime.timedelta(hours=9))
-    if datetime.time(13, 50) <= datetime.datetime.now(tz_jst).time() <= datetime.time(14, 5):
+    if datetime.time(3, 45) <= datetime.datetime.now(tz_jst).time() <= datetime.time(3, 55):
+        driver.get("https://keiba.rakuten.co.jp")
         race_list = get_schedule(driver)
         send_todayschedule(race_list)
         with open("data/race_list.txt", "w") as f:
-            f.write(race_list)
+            f.write(str(race_list))
 
     else:
         with open("data/race_list.txt", "r") as f:
@@ -29,24 +29,31 @@ def job():
 
         if len(race_list) == 0:
             print("今日の全レースは終了しました")
+            driver.close() 
             return False
+
         justbefore_race, notjustbefore_race = get_justbefore_race(race_list, 10)
-        print(justbefore_race)
-        # if len(justbefore_race) >= 1:
-        #     race = justbefore_race[0]
-        #     venue, race_R, starting_time, race_name, distance, num_horse = race
-        #     race_R = int(race_R[:-1])
-        #     num_horse = int(num_horse[:-1])
-        #     if num_horse <= 100:
-        #         want_odds = {"単勝"}
-        #         odds = get_odds(driver, venue, race_R, want_odds)
-        #         vote_pattern = keiba(odds)
-        #         vote(driver, vote_pattern)
+        if len(justbefore_race) >= 1:
+            for race in justbefore_race:
+                venue, race_R, starting_time, race_name, distance, num_horse = race
+                race_R = int(race_R[:-1])
+                num_horse = int(num_horse[:-1])
+                want_odds = {"単勝", "馬単"}
+                odds = get_odds(driver, venue, race_R, want_odds)
+                ans, cancel_horse_list = keiba(odds)
+                print("------------------------------------")
+                print(len(ans))
+                print(ans)
+                print(cancel_horse_list)
+                print("------------------------------------")
 
-    driver.close()
+                    # vote_pattern = keiba(odds)
+                    # vote(driver, vote_pattern)
+        race_list = notjustbefore_race
 
-    with open("data/race_list.txt", "w") as f:
-        f.write(str(notjustbefore_race))
+
+        with open("data/race_list.txt", "w") as f:
+            f.write(str(notjustbefore_race))
 
 
 def main():

@@ -14,17 +14,17 @@ def job():
         command_executor="http://selenium:4444/wd/hub",
         options=webdriver.ChromeOptions()
     )
-
+    race_list_url = "../data/race_list.txt"
     tz_jst = datetime.timezone(datetime.timedelta(hours=9))
     if datetime.time(3, 45) <= datetime.datetime.now(tz_jst).time() <= datetime.time(3, 55):
         driver.get("https://keiba.rakuten.co.jp")
         race_list = get_schedule(driver)
         send_todayschedule(race_list)
-        with open("data/race_list.txt", "w") as f:
+        with open(race_list_url, "w") as f:
             f.write(str(race_list))
 
     else:
-        with open("data/race_list.txt", "r") as f:
+        with open(race_list_url, "r") as f:
             race_list = eval(f.read())
 
         if len(race_list) == 0:
@@ -52,7 +52,7 @@ def job():
         race_list = notjustbefore_race
 
 
-        with open("data/race_list.txt", "w") as f:
+        with open(race_list_url, "w") as f:
             f.write(str(notjustbefore_race))
 
 

@@ -43,7 +43,9 @@ def job():
                 ans, cancel_horse_list = keiba(odds)
                 print("------------------------------------")
                 print(len(ans))
-                print(ans)
+                if len(ans) >= 1:
+                    print(max(ans, key=lambda x:x[4] - x[5]))
+                    print(min(ans, key=lambda x:x[5]))
                 print(cancel_horse_list)
                 print("------------------------------------")
 

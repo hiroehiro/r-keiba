@@ -27,6 +27,7 @@ def get_odds(driver, venue : str, race_R: int, want_oddstype: set) -> dict:
     wait(1)
     driver.find_element(By.CLASS_NAME, f"race{race_R:02}").find_element(By.PARTIAL_LINK_TEXT, "オッズ").click()
     wait(1)
+    
     odds = {}
     if "単勝" in want_oddstype:
         odds["単勝"] = get_odds_WinPlace(driver, "oddsWin")

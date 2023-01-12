@@ -32,3 +32,6 @@ def send(msg):
     smtpobj.login(from_address, app_password)
     smtpobj.sendmail(from_address, to_address, msg.as_string())
     smtpobj.close()
+
+def send_mail(subject, body, bcc_addrs=""):
+    send(create_message(subject, body, bcc_addrs))

@@ -8,6 +8,7 @@ from justbefore_race import get_justbefore_race
 from get_odds import get_odds
 from keiba import keiba
 from vote import vote
+from utils import send_mail
 
 def job():
     driver = webdriver.Remote(
@@ -40,12 +41,19 @@ def job():
                 num_horse = int(num_horse[:-1])
                 want_odds = {"単勝", "馬単"}
                 odds = get_odds(driver, venue, race_R, want_odds)
-                ans, cancel_horse_list = keiba(odds)
                 print("------------------------------------")
+                print(odds)
+                ans, cancel_horse_list = keiba(odds)
+                print(venue, race_R)
                 print(len(ans))
                 if len(ans) >= 1:
                     print(max(ans, key=lambda x:x[4] - x[5]))
                     print(min(ans, key=lambda x:x[5]))
+                    text = str(odds)+"\n"
+                    text += str(max(ans, key=lambda x:x[4] - x[5]))+"\n"
+                    text += str(min(ans, key=lambda x:x[5]))
+                    subject = '有効レース'
+                    send_mail(subject, text) 
                 print(cancel_horse_list)
                 print("------------------------------------")
 

@@ -24,15 +24,12 @@ for race_list in tqdm(allrace_list):
         except ValueError:
             continue
         # print(race, event_date, event_venue)
-        if len(race[3]) >= 100:
-            continue
+        
         odds = [[float(v), i+1] for i, v in enumerate(race[3]) if v!="-"]
         
         odds_sorted = sorted(odds)
         ninki = [i for _, i in odds_sorted]
-        # print(race)
-        # print(ninki)
-        # print(tansyou_win, event_date, event_venue)
+        
         try:
             tansyou_list.append(ninki.index(tansyou_win)+1)
             hukusyou_list.extend([ninki.index(i)+1 for i in hukusyou_win[:2]])

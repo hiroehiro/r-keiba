@@ -4,7 +4,7 @@ import datetime
 from selenium import webdriver
 import schedule
 from send_schedule import send_todayschedule, get_schedule
-from justbefore_race import get_justbefore_race
+from justbefore_race import get_justbefore_race, get_before_race
 from get_odds import get_odds
 from keiba import keiba
 from vote import vote
@@ -17,7 +17,7 @@ def job():
     )
     race_list_url = "../data/race_list.txt"
     tz_jst = datetime.timezone(datetime.timedelta(hours=9))
-    if datetime.time(3, 45) <= datetime.datetime.now(tz_jst).time() <= datetime.time(3, 55):
+    if datetime.time(3, 45) <= datetime.datetime.now(tz_jst).time() <= datetime.time(3, 50):
         driver.get("https://keiba.rakuten.co.jp")
         race_list = get_schedule(driver)
         send_todayschedule(race_list)
@@ -29,9 +29,26 @@ def job():
             race_list = eval(f.read())
 
         if len(race_list) == 0:
-            print("今日の全レースは終了しました")
+            # print("今日の全レースは終了しました")
             driver.close() 
             return False
+        
+
+        for minute in [180, 150, 120, 90, 60, 30, 20, 10]:
+            regular_get_oddz_race = get_before_race(race_list, minute)
+            if regular_get_oddz_race is None:
+                continue
+
+            for race in regular_get_oddz_race:
+                venue, race_R, starting_time, race_name, distance, num_horse = race
+                race_R = int(race_R[:-1])
+                num_horse = int(num_horse[:-1])
+                want_odds = {"単勝", "複勝"}
+                odds = get_odds(driver, venue, race_R, want_odds)
+                with open("../data/odds_transition/odds_transition.txt", "a") as f:
+                    f.write(f"\n {venue} {race_R} {minute} 単勝 {str(odds['単勝'])}")
+                    f.write(f"\n {venue} {race_R} {minute} 複勝 {str(odds['単勝'])}")
+
 
         justbefore_race, notjustbefore_race = get_justbefore_race(race_list, 10)
         if len(justbefore_race) >= 1:
@@ -49,7 +66,8 @@ def job():
                 if len(ans) >= 1:
                     print(max(ans, key=lambda x:x[4] - x[5]))
                     print(min(ans, key=lambda x:x[5]))
-                    text = str(odds)+"\n"
+                    text = str(venue) + " " + str(race_R) + "\n"
+                    text += str(odds)+"\n"
                     text += str(max(ans, key=lambda x:x[4] - x[5]))+"\n"
                     text += str(min(ans, key=lambda x:x[5]))
                     subject = '有効レース'
@@ -67,7 +85,7 @@ def job():
 
 
 def main():
-    schedule.every(5).minutes.do(job)
+    schedule.every(2).minutes.do(job)
 
     while True:
         schedule.run_pending()

@@ -1,3 +1,4 @@
+from datetime import datetime
 import selenium
 from selenium.webdriver.common.by import By
 from utils import wait
@@ -16,14 +17,13 @@ def get_odds(driver, venue : str, race_R: int, want_oddstype: set) -> dict:
     Returns:
         dict: want_oddstypeにあるオッズ
     """
-    driver.get("https://keiba.rakuten.co.jp")
-    try:
-        driver.find_element(By.PARTIAL_LINK_TEXT, venue).click()
-    except selenium.common.exceptions.ElementClickInterceptedException:
-        driver.find_element(By.XPATH, "//*[@id='PRmodal']/div")
-        wait(0.5)
-        driver.find_element(By.PARTIAL_LINK_TEXT, venue).click()
-
+    venue_dict = {"帯広ば": "0300000000", "門別": "3600000000", "盛岡": "1000000000", "水沢": "1100000000",
+                  "浦和": "1800000000", "船橋": "1900000000", "大井": "2000000000", "川崎": "2100000000",
+                  "金沢": "2200000000", "笠松": "2300000000", "名古屋": "2400000000", "園田": "2700000000",
+                  "姫路": "2800000000", "高知": "3100000000", "佐賀": "3200000000"}
+    
+    today = datetime.now().strftime("%Y%m%d")
+    driver.get(f"https://keiba.rakuten.co.jp/race_card/list/RACEID/{today}{venue_dict[venue]}")
     wait(1)
     driver.find_element(By.CLASS_NAME, f"race{race_R:02}").find_element(By.PARTIAL_LINK_TEXT, "オッズ").click()
     wait(1)
